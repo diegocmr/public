@@ -1,1 +1,2 @@
-# public
+# repositorio publico para compartilhamento
+# Diego Cohen
