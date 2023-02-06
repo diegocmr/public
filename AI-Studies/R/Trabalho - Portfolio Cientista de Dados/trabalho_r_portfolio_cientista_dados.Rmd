@@ -1,0 +1,282 @@
+---
+title: "Portfólio de Cientista de Dados - Diego Cohen"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Portfólio de Cientista de Dados
+## Diego Cohen, RM344154, FIAP 24-IA
+Este Portfólio serve para demonstrar habilidades desenvolvidas na matéria 'Programando IA com R', ministrada por Leandro Augusto Ferreira, e está disposta em quatro partes:
+
+* Parte 1 - Pacotes
+* Parte 2 - Variáveis e Classes
+* Parte 3 - Operações Numéricas e Lógicas
+* Parte 4 - Funções
+* Parte 5 - Dataframes, Machine Learning e Plotting
+
+## Parte 1 - Pacotes
+
+### Instalando e inicializando pacotes
+
+```{r, results='hide'}
+#INSTALANDO PACOTES
+install.packages('dplyr')
+install.packages('randomForest')
+install.packages('caret')
+
+#INICIALIZANDO PACOTES
+library ('dplyr')
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(caret)
+library(dplyr)
+```
+### Utilizando funções de pacotes sem instalar
+```{r}
+# operador ::
+dplyr::select(iris, Petal.Width)
+```
+## Parte 2 - Variáveis e Classes
+### Variáveis Numéricas
+```{r}
+x <- 42
+x
+```
+```{r}
+class(x)
+```
+### Números complexos, Inf, NA, NAN
+```{r}
+class(-42i)
+```
+```{r}
+class(Inf)
+```
+```{r}
+class(NA)
+```
+```{r}
+class(NaN)
+```
+
+### Texto\String
+
+
+```{r}
+r <- 'R'
+r
+```
+```{r}
+class(r)
+```
+
+```{r}
+#concatenando strings
+hello <- 'Hello'
+hello_r <- paste(hello, ' ', r, '!', sep = '')
+hello_r
+```
+```{r}
+#verificando o tamanho da string gerada
+nchar(hello_r)
+```
+
+### Sequências
+Sequências basicas
+```{r}
+1:10
+```
+```{r}
+10:1
+```
+
+Usando seq()
+```{r}
+s <- seq(10,pi, length.out = 5)
+s
+```
+
+Obtendo média por função
+```{r}
+mean(s)
+```
+
+Obtendo mediana por função
+```{r}
+median(s)
+```
+Obtendo elemento da sequencia
+```{r}
+s[3]
+```
+Sequência de letras
+```{r}
+LETTERS
+```
+Sequência invertida de letras
+```{r}
+letters[length(letters) : 1]
+```
+### Vetores
+```{r}
+v <- c(1,3,5,7,11, 17)
+v
+```
+### Matrizes
+```{r}
+m <- matrix(v, ncol=2)
+m
+```
+
+```{r}
+m2 <- matrix(10:59, ncol=5)
+m2
+```
+
+
+## Parte 3 - Operações Numéricas e Lógicas
+### Operações Numéricas Básicas
+```{r}
+x <- 42
+y <- -42
+
+x+y
+```
+```{r}
+x-y
+```
+```{r}
+x*y
+```
+```{r}
+x/y
+```
+### Variáveis lógicas
+```{r}
+#TRUE e FALSE
+class(TRUE)
+```
+
+### Operações lógicas
+```{r}
+TRUE & (TRUE | FALSE)
+```
+```{r}
+5 > 4 + 7
+```
+Aplicando verificação lógica em vetor
+```{r}
+v <- c(1,3,5,7,11, 17)
+v < 5
+```
+
+
+## Parte 4 - Funções
+### Escrevendo função de cálculo
+
+```{r}
+soma_e_multiplica <- function(x,y){
+    z = y*x*(x+y)
+    return z}
+```
+```{r}
+soma_e_multiplica(5,6)
+```
+### Escrevendo função que retorna peso ideal por altura e gênero
+```{r}
+fcPesoIdeal2 <- function(gen, altura){
+  if(gen=='M'){
+    pesoideal <- (72.7*altura)-58
+  }else{
+    pesoideal <- (62.1 * altura) - 44.7
+  }
+  return(round(pesoideal,2))}
+```
+
+```{r}
+fcPesoIdeal2('M', 1.76)
+```
+
+## Parte 5 - Dataframes, Machine Learning e Plotting
+### Observando dataframe Iris, do R
+```{r}
+data <- iris
+data
+```
+```{r}
+names(iris) #observando os atributos disponíveis
+```
+
+### Plottando valores de Sepal
+```{r}
+ggplot(data)+
+  geom_point(mapping = aes(x=Sepal.Width, y=Sepal.Length, color=Species))
+```
+Aqui, observa-se que as variáveis Sepal.Length e Sepal.Width não separam bem entre versicolor e virginica
+
+### Plottando valores de Petal
+```{r}
+ggplot(data)+
+  geom_point(mapping = aes(x=Petal.Width, y=Petal.Length, color=Species))
+```
+Nota-se nesse scatterplot que os tamanhos de pétalas são melhores para definir espécie. Vamos confirmar isso usando um modelo rPart com todas as variáveis e verificar no plot.
+
+Transformando dados para transformar Species em seu factor
+```{r}
+data <- data %>% mutate(target = factor(Species))
+data <- data %>% dplyr::select(-Species)
+```
+configurando base de treino e de teste
+
+```{r}
+div_treino_teste = sample.int(nrow(data), 0.8*nrow(data)) #obtendo índices para base de treino e teste
+```
+setando seed
+
+```{r}
+set.seed(42) #configurando a seed para o modelo
+```
+
+separando treino e teste
+
+```{r}
+treino <- data[div_treino_teste,] #base de treino usando índice
+teste <- data[-div_treino_teste,] #base de teste usando o oposto do índice
+```
+
+construindo o modelo rPart com atributos
+
+```{r}
+rpart_model <- rpart(target~., data=treino)
+rpart_model
+```
+Testando o modelo 
+```{r}
+treino$y = predict(rpart_model, treino, type = 'class')
+teste$y = predict(rpart_model, teste, type = 'class')
+confusionMatrix(teste$y, teste$target)
+```
+```{r}
+rpart.plot(rpart_model)
+```
+
+Aqui, o modelo denota que a variável mais importante para definir se é Setosa ou Virginica é o comprimento da pétala. No segundo nível, temos a largura desta. Portanto, a variável definidora é, conforme vimos no scatterplot, as que representam largura e comprimento das pétalas.
+
+## Obrigado!
+
+
+
+
+
+
+
+
+
+
+
+
+
